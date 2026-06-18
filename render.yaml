@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: pfas-platform
+    runtime: docker
+    dockerfilePath: ./deploy/pfas-app.Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PFAS_ENVIRONMENTAL_MODE
+        value: openlca_cloud
+      - key: OPENLCA_EVALUATOR_URL
+        value: http://pfas-openlca-evaluator:8000
+      - key: OPENLCA_EVALUATOR_API_KEY
+        sync: false
+      - key: OPENLCA_EVALUATOR_TIMEOUT
+        value: "240"
+
+  - type: pserv
+    name: pfas-openlca-evaluator
+    runtime: docker
+    dockerfilePath: ./deploy/openlca-evaluator.Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: OPENLCA_EVALUATOR_MODE
+        value: openlca_rest
+      - key: OPENLCA_REST_URL
+        value: http://pfas-openlca-engine:8080
+      - key: OPENLCA_PRODUCT_SYSTEM
+        value: PS_Biochar_PFAS_Incineration
+      - key: OPENLCA_IMPACT_METHOD
+        value: ReCiPe Midpoint (H)
+      - key: OPENLCA_FALLBACK_TO_PROXY
+        value: "true"
+      - key: OPENLCA_EVALUATOR_API_KEY
+        sync: false
+
+  - type: pserv
+    name: pfas-openlca-engine
+    runtime: docker
+    dockerfilePath: ./deploy/openlca-engine.Dockerfile
+    dockerContext: .
+    plan: standard
+    disk:
+      name: openlca-data
+      mountPath: /app/data
+      sizeGB: 5
+    envVars:
+      - key: JAVA_MAX_RAM_PERCENTAGE
+        value: "80"

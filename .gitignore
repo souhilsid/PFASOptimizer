@@ -1,0 +1,50 @@
+# Python/cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Local runtime output
+generated_outputs/predictor_app/server.*.log
+generated_outputs/predictor_app/*screenshot*.png
+generated_outputs/predictor_app/ui_redesign_check.png
+generated_outputs/openlca_evaluator_service/*.log
+generated_outputs/figures/
+generated_outputs/models/
+generated_outputs/pickles/
+generated_outputs/create_pfas_notebooks.py
+generated_outputs/export_predictor_deliverables.py
+generated_outputs/generate_dataset1_2_report.py
+generated_outputs/generate_train_test_parity.py
+generated_outputs/pkl_artifact_index.json
+generated_outputs/optimization/
+generated_outputs/parity_plots/
+generated_outputs/training_csv/
+generated_outputs/notebooks/
+generated_outputs/*.pdf
+generated_outputs/*.xlsx
+generated_outputs/*.csv
+!generated_outputs/pfas_smiles_lookup.csv
+
+# Raw/local research datasets are not required by the deployed app
+PFAS DATASET 1/
+PFAS DATASET 2/
+PFAS DATASET 3/
+/notebooks/
+/figures/
+/models/
+/pickles/
+/pkl_models/
+/training_csv/
+/optimization/
+/parity_plots/
+
+# openLCA database data can be large/licensed; package it intentionally
+deploy/openlca-data/*
+!deploy/openlca-data/.gitignore
+!deploy/openlca-data/README.md
+
+# Local env/secrets
+.env
+.env.*
+!.env.example

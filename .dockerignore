@@ -1,0 +1,26 @@
+**/__pycache__/
+**/*.pyc
+**/.ipynb_checkpoints/
+.git/
+.venv/
+venv/
+env/
+PFAS DATASET 1/
+PFAS DATASET 2/
+PFAS DATASET 3/
+notebooks/
+figures/
+models/
+pickles/
+training_csv/
+generated_outputs/notebooks/
+generated_outputs/training_csv/
+generated_outputs/parity_plots/
+generated_outputs/optimization/
+generated_outputs/*.pdf
+generated_outputs/*.xlsx
+generated_outputs/*.csv
+!generated_outputs/pfas_smiles_lookup.csv
+deploy/openlca-data/*
+!deploy/openlca-data/.gitignore
+!deploy/openlca-data/README.md
