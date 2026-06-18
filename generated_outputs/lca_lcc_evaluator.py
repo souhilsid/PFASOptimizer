@@ -18,12 +18,17 @@ GUIDE_XLSX = DOWNLOADS / "biochar_pfas_openlca_lca_lcc_complete_guide.xlsx"
 NORMALIZATION_CSV = DOWNLOADS / "recipe2016_midpoint_h_normalization_values.csv"
 COUNTRY_COST_XLSX = DOWNLOADS / "biochar_pfas_real_country_cost_profiles_recreated.xlsx"
 
+DEFAULT_OPENLCA_PRODUCT_SYSTEM = os.environ.get("OPENLCA_PRODUCT_SYSTEM", "").strip()
 DEFAULT_PRODUCT_SYSTEMS = {
-    "incineration": "PS_Biochar_PFAS_Incineration",
-    "landfill": "PS_Biochar_PFAS_Landfill",
+    "incineration": os.environ.get("OPENLCA_PRODUCT_SYSTEM_INCINERATION", "").strip()
+    or DEFAULT_OPENLCA_PRODUCT_SYSTEM
+    or "PS_Biochar_PFAS_Incineration",
+    "landfill": os.environ.get("OPENLCA_PRODUCT_SYSTEM_LANDFILL", "").strip()
+    or DEFAULT_OPENLCA_PRODUCT_SYSTEM
+    or "PS_Biochar_PFAS_Landfill",
 }
-DEFAULT_IMPACT_METHOD = "ReCiPe Midpoint (H)"
-DEFAULT_IPC_PORT = 8080
+DEFAULT_IMPACT_METHOD = os.environ.get("OPENLCA_IMPACT_METHOD", "").strip() or "ReCiPe Midpoint (H)"
+DEFAULT_IPC_PORT = int(os.environ.get("OPENLCA_IPC_PORT", "8080") or 8080)
 DEFAULT_CLOUD_TIMEOUT_SECONDS = float(os.environ.get("OPENLCA_EVALUATOR_TIMEOUT", "180"))
 
 CANDIDATE_TO_GLOBAL = {

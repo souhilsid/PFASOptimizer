@@ -1527,13 +1527,13 @@ HTML = r"""<!doctype html>
           <div>
             <label for="invEnvironmentalMode">Environmental evaluator</label>
             <select id="invEnvironmentalMode">
-              <option value="openlca_cloud">Cloud OpenLCA evaluator</option>
+              <option value="openlca_ipc">Hosted OpenLCA IPC evaluator</option>
               <option value="proxy">Offline proxy EBI</option>
-              <option value="openlca_ipc">Advanced: local OpenLCA IPC</option>
+              <option value="openlca_cloud">Cloud OpenLCA evaluator</option>
             </select>
           </div>
           <div id="localIpcField">
-            <label for="invIpcPort">Local IPC port</label>
+            <label for="invIpcPort">IPC port</label>
             <input id="invIpcPort" type="number" min="1" max="65535" step="1" value="8080">
           </div>
           <div>
@@ -2181,6 +2181,39 @@ HTML = r"""<!doctype html>
     function lcaMeta() {
       return assets?.lca_lcc || {};
     }
+    function configuredEnvironmentalMode() {
+      const meta = lcaMeta();
+      const mode = String(meta.default_environmental_mode || "").toLowerCase();
+      if (mode === "openlca_cloud" && !meta.cloud_evaluator_configured) return "openlca_ipc";
+      return mode || (meta.cloud_evaluator_configured ? "openlca_cloud" : "openlca_ipc");
+    }
+    function normalizeEnvironmentalMode(mode) {
+      const meta = lcaMeta();
+      const clean = String(mode || configuredEnvironmentalMode()).toLowerCase();
+      if (clean === "openlca_cloud" && !meta.cloud_evaluator_configured) return configuredEnvironmentalMode();
+      return clean || configuredEnvironmentalMode();
+    }
+    function currentEnvironmentalMode() {
+      const select = document.getElementById("invEnvironmentalMode");
+      const normalized = normalizeEnvironmentalMode(select?.value);
+      if (select && select.value !== normalized) select.value = normalized;
+      return normalized;
+    }
+    function configureEnvironmentalEvaluatorOptions() {
+      const select = document.getElementById("invEnvironmentalMode");
+      if (!select) return;
+      const meta = lcaMeta();
+      const cloudOption = select.querySelector('option[value="openlca_cloud"]');
+      const ipcOption = select.querySelector('option[value="openlca_ipc"]');
+      if (ipcOption) ipcOption.textContent = "Hosted OpenLCA IPC evaluator";
+      if (cloudOption) {
+        cloudOption.disabled = !meta.cloud_evaluator_configured;
+        cloudOption.textContent = meta.cloud_evaluator_configured
+          ? (meta.cloud_evaluator_label || "Cloud OpenLCA evaluator")
+          : "Cloud OpenLCA evaluator (not configured)";
+      }
+      select.value = normalizeEnvironmentalMode(select.value || configuredEnvironmentalMode());
+    }
     function countryProfiles() {
       return lcaMeta().country_profiles || [];
     }
@@ -2487,11 +2520,12 @@ HTML = r"""<!doctype html>
       if (product) document.getElementById("invProductSystem").value = product;
     }
     function syncLcaEvaluatorMode() {
-      const mode = document.getElementById("invEnvironmentalMode").value;
+      configureEnvironmentalEvaluatorOptions();
+      const mode = currentEnvironmentalMode();
       const localField = document.getElementById("localIpcField");
       if (localField) localField.classList.toggle("hidden", mode !== "openlca_ipc");
       const button = document.getElementById("invTestOpenLca");
-      if (button) button.textContent = mode === "openlca_ipc" ? "Test local IPC" : mode === "proxy" ? "Test proxy" : "Test cloud evaluator";
+      if (button) button.textContent = mode === "openlca_ipc" ? "Test OpenLCA IPC" : mode === "proxy" ? "Test proxy" : "Test cloud evaluator";
     }
     function syncLcaLccControls() {
       const dataset = document.getElementById("invDataset")?.value || "dataset1";
@@ -2530,7 +2564,7 @@ HTML = r"""<!doctype html>
     async function testOpenLca() {
       const button = document.getElementById("invTestOpenLca");
       const note = document.getElementById("lcaLccNote");
-      const mode = document.getElementById("invEnvironmentalMode").value;
+      const mode = currentEnvironmentalMode();
       button.disabled = true;
       button.textContent = "Testing...";
       const params = new URLSearchParams({
@@ -3184,7 +3218,7 @@ HTML = r"""<!doctype html>
           ranges: collectInverseRanges(),
           categories: collectInverseCategories(),
           include_lca_lcc: includeLcaLcc,
-          environmental_mode: document.getElementById("invEnvironmentalMode").value,
+          environmental_mode: currentEnvironmentalMode(),
           ipc_port: Number(document.getElementById("invIpcPort").value || 8080),
           eol_mode: document.getElementById("invEolMode").value,
           country: document.getElementById("invCountry").value,
@@ -3520,7 +3554,8 @@ HTML = r"""<!doctype html>
       const meta = lcaMeta();
       document.getElementById("invIpcPort").value = meta.ipc_default_port || 8080;
       document.getElementById("invImpactMethod").value = meta.impact_method_default || "ReCiPe Midpoint (H)";
-      document.getElementById("invEnvironmentalMode").value = meta.default_environmental_mode || (meta.cloud_evaluator_configured ? "openlca_cloud" : "proxy");
+      document.getElementById("invEnvironmentalMode").value = configuredEnvironmentalMode();
+      configureEnvironmentalEvaluatorOptions();
       syncLcaProductSystem();
       renderDataset("dataset1");
       renderOptimizationSetup(document.getElementById("optDataset").value);
