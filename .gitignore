@@ -17,6 +17,8 @@ generated_outputs/export_predictor_deliverables.py
 generated_outputs/generate_dataset1_2_report.py
 generated_outputs/generate_train_test_parity.py
 generated_outputs/pkl_artifact_index.json
+generated_outputs/pkl_models/*.pkl
+!generated_outputs/pkl_models/*.pkl.gz
 generated_outputs/optimization/
 generated_outputs/parity_plots/
 generated_outputs/training_csv/

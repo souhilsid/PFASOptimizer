@@ -21,6 +21,8 @@ generated_outputs/*.pdf
 generated_outputs/*.xlsx
 generated_outputs/*.csv
 !generated_outputs/pfas_smiles_lookup.csv
+generated_outputs/pkl_models/*.pkl
+!generated_outputs/pkl_models/*.pkl.gz
 deploy/openlca-data/*
 !deploy/openlca-data/.gitignore
 !deploy/openlca-data/README.md

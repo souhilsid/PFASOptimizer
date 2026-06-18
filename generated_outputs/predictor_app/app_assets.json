@@ -1,7 +1,7 @@
 {
   "models": {
-    "dataset1": "generated_outputs\\pkl_models\\dataset1_biochar_removal_model.pkl",
-    "dataset2": "generated_outputs\\pkl_models\\dataset2_resin_removal_known_catalog_model.pkl"
+    "dataset1": "generated_outputs\\pkl_models\\dataset1_biochar_removal_model.pkl.gz",
+    "dataset2": "generated_outputs\\pkl_models\\dataset2_resin_removal_known_catalog_model.pkl.gz"
   },
   "datasets": {
     "dataset1": {

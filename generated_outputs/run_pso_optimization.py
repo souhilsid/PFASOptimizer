@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import gzip
 import pickle
 import warnings
 from dataclasses import dataclass
@@ -64,7 +65,8 @@ class DatasetSearchSpace:
 
 
 def load_pickle(path: Path) -> Any:
-    with path.open("rb") as f:
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, "rb") as f:
         return pickle.load(f)
 
 
@@ -95,8 +97,8 @@ def range_from_metadata(name: str, meta: dict[str, Any]) -> NumericDimension:
 
 def load_search_spaces() -> list[DatasetSearchSpace]:
     assets = json.loads(APP_ASSETS_PATH.read_text(encoding="utf-8"))
-    dataset1_bundle = load_pickle(PKL_DIR / "dataset1_biochar_removal_model.pkl")
-    dataset2_bundle = load_pickle(PKL_DIR / "dataset2_resin_removal_known_catalog_model.pkl")
+    dataset1_bundle = load_pickle(PKL_DIR / "dataset1_biochar_removal_model.pkl.gz")
+    dataset2_bundle = load_pickle(PKL_DIR / "dataset2_resin_removal_known_catalog_model.pkl.gz")
 
     ds1_assets = assets["datasets"]["dataset1"]
     ds2_assets = assets["datasets"]["dataset2"]
@@ -118,18 +120,22 @@ def load_search_spaces() -> list[DatasetSearchSpace]:
             for ex in ds2_assets["examples"]
         }
     )
-    # Use all options from metadata for PFAS/Solution and all observed resin profiles from the source workbook.
-    source = pd.read_excel(ROOT / "PFAS DATASET 2" / "es4c14223_si_001.xlsx", sheet_name="source data")
+    # Use all options from metadata for PFAS/Solution and all observed resin profiles
+    # when the source workbook is available. The deployed app does not ship raw
+    # supplementary workbooks, so it falls back to the packaged example profiles.
+    source_path = ROOT / "PFAS DATASET 2" / "es4c14223_si_001.xlsx"
     profile_cols = ["Resin", "Polymer_matrix ", "Porosity", "Functional group", "Resin_type"]
-    resin_profile_df = source[profile_cols].dropna().drop_duplicates()
-    for col in profile_cols:
-        resin_profile_df = resin_profile_df[
-            ~resin_profile_df[col].astype(str).str.strip().str.lower().isin(INVALID_CATEGORY_VALUES)
-        ]
-    resin_profiles = tuple(
-        tuple(str(row[col]).strip() for col in profile_cols)
-        for _, row in resin_profile_df.iterrows()
-    )
+    if source_path.exists():
+        source = pd.read_excel(source_path, sheet_name="source data")
+        resin_profile_df = source[profile_cols].dropna().drop_duplicates()
+        for col in profile_cols:
+            resin_profile_df = resin_profile_df[
+                ~resin_profile_df[col].astype(str).str.strip().str.lower().isin(INVALID_CATEGORY_VALUES)
+            ]
+        resin_profiles = tuple(
+            tuple(str(row[col]).strip() for col in profile_cols)
+            for _, row in resin_profile_df.iterrows()
+        )
 
     ds2_numeric = [range_from_metadata(name, ds2_assets["ranges"][name]) for name in ds2_assets["numeric_fields"]]
     ds2_categorical = [

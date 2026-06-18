@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import io
 import json
 import mimetypes
@@ -3542,7 +3543,8 @@ HTML = r"""<!doctype html>
 
 
 def load_pickle(path: Path):
-    with path.open("rb") as f:
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, "rb") as f:
         return pickle.load(f)
 
 
