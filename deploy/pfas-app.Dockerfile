@@ -12,6 +12,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements-pfas-app.txt /app/requirements-pfas-app.txt
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
 RUN pip install --no-cache-dir -r /app/requirements-pfas-app.txt
 
 COPY generated_outputs/predictor_app /app/generated_outputs/predictor_app
