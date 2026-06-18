@@ -45,6 +45,7 @@ PFAS DATASET 3/
 deploy/openlca-data/*
 !deploy/openlca-data/.gitignore
 !deploy/openlca-data/README.md
+deploy/openlca-data-*.zip
 
 # Local env/secrets
 .env
