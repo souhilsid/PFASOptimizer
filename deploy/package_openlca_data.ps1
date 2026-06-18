@@ -43,6 +43,6 @@ if ($Zip) {
     if (Test-Path -LiteralPath $zipPath) {
         Remove-Item -LiteralPath $zipPath -Force
     }
-    Compress-Archive -LiteralPath (Join-Path $targetRoot "*") -DestinationPath $zipPath -Force
+    Compress-Archive -Path (Join-Path $targetRoot "*") -DestinationPath $zipPath -Force
     Write-Host "Created $zipPath"
 }
